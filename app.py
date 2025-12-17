@@ -1,9 +1,26 @@
 import streamlit as st
 import pandas as pd
+import os
 from dotenv import load_dotenv
 
 from data_sources import pubmed_recent_authors, nih_reporter_grants
 from scoring import score_row
+
+
+
+
+
+DEFAULT_FILE = "Load default.csv"
+
+@st.cache_data
+def load_default_data():
+    if os.path.exists(DEFAULT_FILE):
+        if DEFAULT_FILE.endswith(".csv"):
+            return pd.read_csv(DEFAULT_FILE)
+        elif DEFAULT_FILE.endswith(".xlsx"):
+            return pd.read_excel(DEFAULT_FILE)
+    return pd.DataFrame()
+
 
 load_dotenv()
 
@@ -38,31 +55,28 @@ h1, h2, h3 {{ color: {PRIMARY}; }}
 st.markdown("# 🧪 3D In‑Vitro Lead Generation Dashboard")
 st.write("Identify, enrich, and rank leads for therapies using 3D in‑vitro models. Real PubMed authors, NIH grants, upload CSV from Apollo/Clay, dynamic filters, scoring, and export.")
 
-# ---------------- Sidebar: data source ----------------
-st.sidebar.header("🔌 Data source")
-source = st.sidebar.radio(
+# Load default Excel file once 
+df_raw = load_default_data() 
+# ---------------- Sidebar: data source ---------------- 
+st.sidebar.header("🔌 Data source") 
+source = st.sidebar.radio( 
     "Choose source",
-    ["Upload CSV (Apollo/Clay)", "PubMed authors (query)", "NIH grants (keyword)", "Use seed demo (100 rows)"],
+    ["Default file","Upload CSV (Apollo/Clay)", "PubMed authors (query)", "NIH grants (keyword)", "Use seed demo (100 rows)"], 
     index=0
-)
-
-df_raw = pd.DataFrame([])
-
-if source == "Upload CSV (Apollo/Clay)":
-    st.sidebar.caption("Export real leads from Apollo.io or Clay with LinkedIn URLs and business emails, then upload here.")
-    file = st.sidebar.file_uploader("Upload leads CSV or Excel", type=["csv", "xlsx"])
-
-    import os
-
-    if file is not None:
-        ext = os.path.splitext(file.name)[1].lower()
-        if ext == ".csv":
-            df_raw = pd.read_csv(file)
-        elif ext == ".xlsx":
-            df_raw = pd.read_excel(file)
-        else:
+) 
+if source == "Default file": 
+    df_raw = load_default_data()
+elif source == "Upload CSV (Apollo/Clay)": 
+    st.sidebar.caption("Export real leads from Apollo.io or Clay with LinkedIn URLs and business emails, then upload here.") 
+    file = st.sidebar.file_uploader("Upload leads CSV or Excel", type=["csv", "xlsx"]) 
+    if file is not None: 
+        ext = os.path.splitext(file.name)[1].lower() 
+        if ext == ".csv": 
+            df_raw = pd.read_csv(file) 
+        elif ext == ".xlsx": 
+            df_raw = pd.read_excel(file) 
+        else: 
             st.error("Unsupported file format. Please upload a CSV or XLSX file.")
-
 
 elif source == "PubMed authors (query)":
     st.sidebar.caption("Real authors fetching via PubMed. Example: Drug‑Induced Liver Injury[Title] AND 3D cell culture")
@@ -103,7 +117,7 @@ df["Rank"] = range(1, len(df) + 1)
 # ---------------- Sidebar: filters ----------------
 st.sidebar.header("🔍 Filters")
 keyword = st.sidebar.text_input("Keyword search (e.g., Boston, Toxicology, Liver)")
-min_score = st.sidebar.slider("Minimum score", 0, 100, 60, step=5)
+min_score = st.sidebar.slider("Minimum score", 0, 100, 20, step=5)
 title_filters = st.sidebar.multiselect(
     "Title contains",
     ["Director", "Head", "VP", "Safety", "Toxicology", "Scientist", "Hepatic", "3D"],
