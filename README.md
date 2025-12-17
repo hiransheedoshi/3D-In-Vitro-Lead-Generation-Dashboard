@@ -52,7 +52,7 @@ Run the app:
 
 bash
 streamlit run app.py
-Open the local URL (e.g., http://localhost:8505/) in your browser.
+Open the local URL (e.g., http://localhost:8501/) in your browser.
 
 📊 Example Output
 Director of Safety Assessment at a Series B biotech in Cambridge, MA who published on liver toxicity → Score: 95/100
