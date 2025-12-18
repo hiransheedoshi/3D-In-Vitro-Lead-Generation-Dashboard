@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import os
-from dotenv import load_dotenv
+
 
 from data_sources import pubmed_recent_authors, nih_reporter_grants
 from scoring import score_row
@@ -22,7 +22,7 @@ def load_default_data():
     return pd.DataFrame()
 
 
-load_dotenv()
+
 
 # ---------------- Page config & theme ----------------
 st.set_page_config(
